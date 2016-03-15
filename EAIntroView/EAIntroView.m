@@ -66,7 +66,7 @@
     self.backgroundColor = [UIColor blackColor];
     _scrollingEnabled = YES;
     _titleViewY = 20.f;
-    _pageControlY = 50.f;
+    _pageControlY = 20.f;
     _skipButtonY = EA_EMPTY_PROPERTY;
     _skipButtonSideMargin = 10.f;
     _skipButtonAlignment = EAViewAlignmentRight;
