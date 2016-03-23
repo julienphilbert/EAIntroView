@@ -394,13 +394,11 @@
         [pageView addConstraint:weakConstraint];
 
 
-        CGRect rectYouNeed = [titleLabel.text boundingRectWithSize:CGSizeMake(100, CGFLOAT_MAX)
-                                   options:NSStringDrawingUsesLineFragmentOrigin
-                                attributes:@{ NSFontAttributeName : titleLabel.font }
-                                   context:nil];
-
-
-        [pageView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-titleMargin-[titleLabel]-titleMargin-|" options:NSLayoutFormatAlignAllTop metrics:@{@"titleMargin" : @(rectYouNeed.size.width)} views:@{@"titleLabel" : titleLabel}]];
+        CGSize rectYouNeed = [[titleLabel text] sizeWithAttributes:@{NSFontAttributeName:[titleLabel font]}];
+        
+        float marginTitle = ([UIScreen mainScreen].bounds.size.width-(rectYouNeed.width+10))/2;
+        
+        [pageView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-titleMargin-[titleLabel]-titleMargin-|" options:NSLayoutFormatAlignAllTop metrics:@{@"titleMargin" : @(marginTitle)} views:@{@"titleLabel" : titleLabel}]];
     }
 
     UITextView *descLabel;
