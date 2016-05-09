@@ -14,6 +14,8 @@
 @property (nonatomic, strong) NSMutableArray *footerConstraints;
 @property (nonatomic, strong) NSMutableArray *titleViewConstraints;
 
+@property (nonatomic, assign) BOOL skipped;
+
 @end
 
 @interface EAIntroPage()
@@ -70,8 +72,9 @@
     _skipButtonY = EA_EMPTY_PROPERTY;
     _skipButtonSideMargin = 10.f;
     _skipButtonAlignment = EAViewAlignmentRight;
-
-
+	_skipped = NO;
+    _limitPageIndex = -1;
+    
     [self buildBackgroundImage];
 
     self.pages = [pagesArray copy];
@@ -176,8 +179,8 @@
     //removeFromSuperview should be called after a delay
     dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)0);
     dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
-        if ([(id)self.delegate respondsToSelector:@selector(introDidFinish:)]) {
-            [self.delegate introDidFinish:self];
+        if ([(id)self.delegate respondsToSelector:@selector(introDidFinish:wasSkipped:)]) {
+            [self.delegate introDidFinish:self wasSkipped:self.skipped];
         }
 
         [self removeFromSuperview];
@@ -185,6 +188,7 @@
 }
 
 - (void)skipIntroduction {
+	self.skipped = YES;
     [self hideWithFadeOutDuration:0.3];
 }
 
@@ -334,6 +338,10 @@
 
     pageView.accessibilityLabel = [NSString stringWithFormat:@"intro_page_%lu",(unsigned long)[self.pages indexOfObject:page]];
 
+    if(page.alpha < 1.f || !page.bgImage) {
+        self.backgroundColor = [UIColor clearColor];
+    }
+
     if(page.customView) {
         [pageView addSubview:page.customView];
 
@@ -372,17 +380,12 @@
     UILabel *titleLabel;
     if(page.title.length) {
         titleLabel = [[UILabel alloc] init];
-        //NSMutableAttributedString* string = [[NSMutableAttributedString alloc]initWithString:page.title];
-        //[string addAttribute:NSFontAttributeName value:page.titleFont range:NSMakeRange(0, string.length)];
-        //[string addAttribute:NSBackgroundColorAttributeName value:[UIColor blackColor] range:NSMakeRange(0, string.length)];//TextColor
-        //titleLabel.attributedText = string;
 
         titleLabel.text = page.title;
         titleLabel.font = page.titleFont;
         titleLabel.textColor = page.titleColor;
         titleLabel.backgroundColor = [UIColor colorWithRed:0.894 green:0.31 blue:0.529 alpha:1];
-
-        titleLabel.textAlignment = NSTextAlignmentCenter;
+        titleLabel.textAlignment = page.titleAlignment;
         titleLabel.lineBreakMode = NSLineBreakByWordWrapping;
         titleLabel.numberOfLines = 0;
         titleLabel.tag = kTitleLabelTag;
@@ -409,7 +412,7 @@
         descLabel.font = page.descFont;
         descLabel.textColor = page.descColor;
         descLabel.backgroundColor = [UIColor clearColor];
-        descLabel.textAlignment = NSTextAlignmentCenter;
+        descLabel.textAlignment = page.descAlignment;
         descLabel.userInteractionEnabled = NO;
         descLabel.tag = kDescLabelTag;
         descLabel.translatesAutoresizingMaskIntoConstraints = NO;
@@ -639,6 +642,12 @@ CGFloat easeOutValue(CGFloat value) {
         numberOfPages = numberOfPages + 1;
     }
 
+    
+    // Descrease to limited index when scrolling is restricted:
+    if (self.limitPageIndex != -1) {
+        numberOfPages = self.limitPageIndex + 1;
+    }
+    
     // Adjust contentSize of ScrollView:
     CGSize newContentSize = CGSizeMake(numberOfPages * self.scrollView.frame.size.width, self.scrollView.frame.size.height);
     if(self.scrollView.contentOffset.x > newContentSize.width) {
@@ -936,6 +945,7 @@ CGFloat easeOutValue(CGFloat value) {
         return;
     }
 
+	self.skipped = NO;
     self.currentPageIndex = initialPageIndex;
     self.alpha = 0;
 
@@ -997,14 +1007,16 @@ CGFloat easeOutValue(CGFloat value) {
     }
 }
 
-- (void)limitScrollingToPage:(NSUInteger)lastPageIndex {
-    if (lastPageIndex >= [self.pages count]) {
+- (void)setLimitPageIndex:(NSInteger)limitPageIndex {
+    _limitPageIndex = limitPageIndex;
+    
+    if (limitPageIndex < 0 || limitPageIndex >= self.pages.count) {
+        _limitPageIndex = -1;
         self.scrollingEnabled = YES;
         return;
+    } else {
+        self.scrollView.restrictionArea = CGRectMake(0, 0, (self.limitPageIndex + 1) * self.scrollView.bounds.size.width, self.scrollView.bounds.size.height);
     }
-
-    _scrollingEnabled = YES;
-    self.scrollView.restrictionArea = CGRectMake(0, 0, (lastPageIndex + 1) * self.scrollView.bounds.size.width, self.scrollView.bounds.size.height);
 }
 
 @end
