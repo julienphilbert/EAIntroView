@@ -358,6 +358,14 @@
     tapToNextButton.frame = pageView.bounds;
     tapToNextButton.translatesAutoresizingMaskIntoConstraints = NO;
     [tapToNextButton addTarget:self action:@selector(goToNext:) forControlEvents:UIControlEventTouchUpInside];
+
+    NSString *accessibilityLabel = [self accessibilityLabelForPage:page];
+    if (accessibilityLabel.length > 0) {
+        tapToNextButton.isAccessibilityElement = YES;
+        tapToNextButton.accessibilityLabel = accessibilityLabel;
+        tapToNextButton.accessibilityTraits = UIAccessibilityTraitButton;
+    }
+    
     [pageView addSubview:tapToNextButton];
 
     NSMutableArray *constraints = @[].mutableCopy;
@@ -390,7 +398,8 @@
         titleLabel.numberOfLines = 0;
         titleLabel.tag = kTitleLabelTag;
         titleLabel.translatesAutoresizingMaskIntoConstraints = NO;
-
+        titleLabel.isAccessibilityElement = NO;
+        
         [pageView addSubview:titleLabel];
         NSLayoutConstraint *weakConstraint = [NSLayoutConstraint constraintWithItem:pageView attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:titleLabel attribute:NSLayoutAttributeTop multiplier:1.0 constant:page.titlePositionY];
         weakConstraint.priority = UILayoutPriorityDefaultLow;
@@ -416,7 +425,8 @@
         descLabel.userInteractionEnabled = NO;
         descLabel.tag = kDescLabelTag;
         descLabel.translatesAutoresizingMaskIntoConstraints = NO;
-
+        descLabel.isAccessibilityElement = NO;
+        
         [pageView addSubview:descLabel];
         NSLayoutConstraint *weakConstraint = [NSLayoutConstraint constraintWithItem:pageView attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:descLabel attribute:NSLayoutAttributeTop multiplier:1.0 constant:page.descPositionY];
         weakConstraint.priority = UILayoutPriorityDefaultLow;
@@ -444,6 +454,23 @@
     pageView.alpha = page.alpha;
 
     return pageView;
+}
+
+- (NSString*)accessibilityLabelForPage:(EAIntroPage*)page
+{
+    NSString *accessibilityLabel = nil;
+    if (page.title) {
+        if (page.desc) {
+            accessibilityLabel = [NSString stringWithFormat:@"%@, %@", page.title, page.desc];
+        }
+        else {
+            accessibilityLabel = page.title;
+        }
+    }
+    else {
+        accessibilityLabel = page.desc;
+    }
+    return accessibilityLabel;
 }
 
 - (void)appendCloseViewAtXIndex:(CGFloat*)xIndex {
