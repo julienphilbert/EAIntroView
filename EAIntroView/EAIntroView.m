@@ -74,7 +74,7 @@
     _skipButtonAlignment = EAViewAlignmentRight;
 	_skipped = NO;
     _limitPageIndex = -1;
-    
+
     [self buildBackgroundImage];
 
     self.pages = [pagesArray copy];
@@ -365,7 +365,7 @@
         tapToNextButton.accessibilityLabel = accessibilityLabel;
         tapToNextButton.accessibilityTraits = UIAccessibilityTraitButton;
     }
-    
+
     [pageView addSubview:tapToNextButton];
 
     NSMutableArray *constraints = @[].mutableCopy;
@@ -392,14 +392,14 @@
         titleLabel.text = page.title;
         titleLabel.font = page.titleFont;
         titleLabel.textColor = page.titleColor;
-        titleLabel.backgroundColor = [UIColor colorWithRed:0.894 green:0.31 blue:0.529 alpha:1];
+        titleLabel.backgroundColor = [UIColor colorWithRed:1.00 green:0.23 blue:0.59 alpha:1.0]
         titleLabel.textAlignment = page.titleAlignment;
         titleLabel.lineBreakMode = NSLineBreakByWordWrapping;
         titleLabel.numberOfLines = 0;
         titleLabel.tag = kTitleLabelTag;
         titleLabel.translatesAutoresizingMaskIntoConstraints = NO;
         titleLabel.isAccessibilityElement = NO;
-        
+
         [pageView addSubview:titleLabel];
         NSLayoutConstraint *weakConstraint = [NSLayoutConstraint constraintWithItem:pageView attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:titleLabel attribute:NSLayoutAttributeTop multiplier:1.0 constant:page.titlePositionY];
         weakConstraint.priority = UILayoutPriorityDefaultLow;
@@ -407,9 +407,9 @@
 
 
         CGSize rectYouNeed = [[titleLabel text] sizeWithAttributes:@{NSFontAttributeName:[titleLabel font]}];
-        
+
         float marginTitle = ([UIScreen mainScreen].bounds.size.width-(rectYouNeed.width+10))/2;
-        
+
         [pageView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-titleMargin-[titleLabel]-titleMargin-|" options:NSLayoutFormatAlignAllTop metrics:@{@"titleMargin" : @(marginTitle)} views:@{@"titleLabel" : titleLabel}]];
     }
 
@@ -426,7 +426,7 @@
         descLabel.tag = kDescLabelTag;
         descLabel.translatesAutoresizingMaskIntoConstraints = NO;
         descLabel.isAccessibilityElement = NO;
-        
+
         [pageView addSubview:descLabel];
         NSLayoutConstraint *weakConstraint = [NSLayoutConstraint constraintWithItem:pageView attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:descLabel attribute:NSLayoutAttributeTop multiplier:1.0 constant:page.descPositionY];
         weakConstraint.priority = UILayoutPriorityDefaultLow;
@@ -669,12 +669,12 @@ CGFloat easeOutValue(CGFloat value) {
         numberOfPages = numberOfPages + 1;
     }
 
-    
+
     // Descrease to limited index when scrolling is restricted:
     if (self.limitPageIndex != -1) {
         numberOfPages = self.limitPageIndex + 1;
     }
-    
+
     // Adjust contentSize of ScrollView:
     CGSize newContentSize = CGSizeMake(numberOfPages * self.scrollView.frame.size.width, self.scrollView.frame.size.height);
     if(self.scrollView.contentOffset.x > newContentSize.width) {
@@ -1036,7 +1036,7 @@ CGFloat easeOutValue(CGFloat value) {
 
 - (void)setLimitPageIndex:(NSInteger)limitPageIndex {
     _limitPageIndex = limitPageIndex;
-    
+
     if (limitPageIndex < 0 || limitPageIndex >= self.pages.count) {
         _limitPageIndex = -1;
         self.scrollingEnabled = YES;
